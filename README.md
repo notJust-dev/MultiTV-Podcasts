@@ -1,486 +1,214 @@
-React Native Monorepo Sample App
-================================
+# Multi-TV Hello World
 
-The React Native Monorepo Sample App shows you how to create an app that runs on multiple platforms and devices using Yarn workspaces, including the Vega OS Fire TV Stick. The following table shows you what platforms this app is designed to run on.
+A monorepo for building TV apps across multiple platforms using Yarn workspaces, including Vega OS (Fire TV), Expo TV (Android TV / Apple TV), and web.
 
-Introduction
-------------
+![Screenshots](./images/screenshots.png)
 
-The React Native Monorepo Sample App runs on the following platforms and devices. 
+## Introduction
+
+This project demonstrates how to share React Native code across multiple TV platforms using a Yarn workspaces monorepo. It includes:
+
+- A shared package with common components, screens, and utilities
+- A Vega app targeting Fire TV
+- An Expo TV app targeting Android TV and Apple TV
+
+### Supported Platforms
 
 | Platform | Target Devices |
-|----------|------------------|
-| **React Native for Vega** | Vega OS Fire TV Stick |
-| **React Native Core** | Android and iOS Mobile |
-| **React Native for TvOS** | Android TV and Apple TV |
-| **React Native for MacOS** | Native MacOS |
+|----------|----------------|
+| Vega (Kepler) | Fire TV |
+| Expo TV | Android TV, Apple TV |
+| Expo Web | Browser |
 
+## Project Structure
 
-### Example screens of the React Native Monorepo Sample App running on devices
+```
+├── package.json                 # Root workspace config (Yarn 4)
+├── packages/
+│   ├── shared/                  # @multitv/shared
+│   │   ├── src/
+│   │   │   ├── components/      # Header, HeaderLogo, Tile, ApiDemo, IconReactNativeAnimated
+│   │   │   ├── screens/         # HomeScreen
+│   │   │   ├── data/            # Tile definitions
+│   │   │   ├── services/        # HTTP client (fetch-based)
+│   │   │   ├── utils/           # Scaling utilities
+│   │   │   └── assets/          # Platform logos, background images
+│   │   └── index.ts             # Public API exports
+│   ├── expotv/                  # @multitv/expotv
+│   │   ├── app/                 # Expo Router pages
+│   │   ├── components/          # TV-specific components
+│   │   ├── layouts/             # Tab layouts (native + web)
+│   │   ├── hooks/               # useScale, useColorScheme, useTextStyles
+│   │   ├── constants/           # Colors, TextStyles
+│   │   └── assets/              # Images, fonts, TV icons
+│   └── vega/                    # @multitv/vega (symlink)
+│       ├── src/
+│       │   └── App.tsx
+│       ├── test/
+│       ├── manifest.toml
+│       └── package.json
+```
 
-**Vega Virtual Device**
+## Prerequisites
 
-![Vega Virtual Device](docs/images/VegaVirtualDevice.png)
-
-
-**Android**
-
-![Android](docs/images/Android.png)
-
-**Apple iPhone**
-
-![iPhone](docs/images/iPhone.png)
-
-
-**Apple TV**
-
-![Apple TV](docs/images/AppleTV.png)
-
-
-
-
-###  Prerequisites
-
-Before you launch the sample app, make sure that you have the following installed: 
-
-
-#### Core requirements
+### Core Requirements
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [Yarn](https://yarnpkg.com/) (v4.5.0 or higher)
 - [Git](https://git-scm.com/)
-- Basic knowledge of [Yarn](https://yarnpkg.com/getting-started) and [Yarn Workspaces](https://yarnpkg.com/features/workspaces)
 
-#### Platform-Specific Requirements
+### Platform-Specific Requirements
 
-**React Native Core**
+**Vega (Fire TV)**
 
-* [React Native Environment Setup](https://reactnative.dev/docs/set-up-your-environment)
+Vega development requires the Vega SDK and Yarn configuration for Amazon device packages.
 
+1. [Install the Vega Developer Tools](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html)
+2. [Configure Yarn for Vega](https://developer.amazon.com/docs/vega/latest/configure-package-managers.html)
 
-**React Native for TvOS**
+**Expo TV**
 
-* [React Native TvOS Setup](https://github.com/react-native-tvos/react-native-tvos)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- Android Studio with an Android TV system image (for Android TV)
+- Xcode (for Apple TV)
 
-**React Native for Vega**
+## Quick Start
 
-**Important**: Vega development requires special configuration.
-
-1. [Install the Vega Developer Tools](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html).
-2. [Configure Yarn](https://developer.amazon.com/docs/vega/latest/configure-package-managers.html).
-
-
-Build and run the app
----------------------
-
-You can download the source code from GitHub to build and run the sample app for the following platforms and devices.
-
-### Install dependencies
-
-Install all workspace dependencies. Run the following command.
-
-```
+```bash
+# Install all workspace dependencies
 yarn
+
+# Build the Vega/Fire TV app (debug)
+yarn vega:build
+
+# Prebuild Expo TV native projects
+yarn expotv:prebuild
+
+# Run on Android TV
+yarn expotv:android
+
+# Run on Apple TV
+yarn expotv:ios
+
+# Run on web
+yarn expotv:web
 ```
 
-Install CocoaPods for iOS projects. Run the following command. 
+## Build and Run
 
-```
-yarn workspaces foreach --all run pods
-```
+You can build and run using either the CLI or the [Vega Studio IDE extension](https://developer.amazon.com/docs/vega/0.22/setup-extension.html). We recommend the IDE, which provides build, run, and device management directly from the sidebar panel. Vega Studio also has [monorepo support](https://developer.amazon.com/docs/vega/0.22/monorepo-support.html) that automatically detects the workspace layout and imports Vega sub-packages when you open the project.
 
-### Mobile development
+### Vega (Fire TV) CLI
 
-#### iOS
+Build the project:
 
-To launch the app in an iOS environment, run the following command. 
+```bash
+# Debug build (recommended for development, enables Fast Refresh)
+yarn workspace @multitv/vega run build:debug
 
-```
-yarn workspace @rnmonorepo/mobile run ios
-```
-
-#### Android
-
-To launch the app in an Android environment, run the following command. 
-
-```
-yarn workspace @rnmonorepo/mobile run android
+# Release build
+yarn workspace @multitv/vega run build:release
 ```
 
-### TV development
+Run on a Vega virtual device:
 
-#### Amazon Vega Virtual Device and Vega OS Fire TV Stick
+```bash
+vega virtual-device start
 
-1. Build the project using the following commands. 
+# Mac M-series (aarch64)
+vega run-app packages/vega/build/aarch64-debug/vega_aarch64.vpkg
 
-   Production build:
-
-   ```
-   yarn workspace @rnmonorepo/vega run build
-   ```
-
-   Debug build (recommended for development):
-   
-   ```
-   yarn workspace @rnmonorepo/vega run build:debug
-   ```
-
-2. Run the app.
-
-   **Vega Virtual Device**
-
-   1. To start the Vega Virtual Device, at the command prompt, run the following command.
-
-      ```
-      vega virtual-device start
-      ```
-
-   2. To install and launch the app on the Vega Virtual Device, run the following command, depending on your device architecture.
-
-      - On Mac M-series based devices.   
-
-        ```
-        vega run-app vega/build/aarch64-release/vega_aarch64.vpkg
-        ```
-
-      - On x86_64 based devices.   
-
-        ```
-        vega run-app vega/build/x86_64-release/vega_x86_64.vpkg
-        ```
- 
-   **Vega OS Fire TV Stick**
-
-   1. Turn on your Vega OS Fire TV Stick.
-
-   2. To install and launch the app on your Vega OS Fire TV Stick, run the following command.
-
-      ```
-      vega run-app vega/build/armv7-release/vega_armv7.vpkg
-      ```
-
-#### Apple TV
-
-To launch the app in an Apple TV environment, run the following command. 
-
-```
-yarn workspace @rnmonorepo/tvos run ios --simulator "Apple TV"
+# Intel Mac (x86_64)
+vega run-app packages/vega/build/x86_64-debug/vega_x86_64.vpkg
 ```
 
-#### Android TV
+Run on a Fire TV Stick:
 
-1. Start the Android TV emulator using the following command. 
-
-   ```
-   emulator -avd android-tv
-   ```
-
-2. Run the app using the following command. 
-
-   ```
-   yarn workspace @rnmonorepo/tvos run android
-   ```
-
-### Set up Fast Refresh for the Vega OS Fire TV Stick or Vega Virtual Device
-
-[Fast Refresh](https://reactnative.dev/docs/fast-refresh) is a React Native function that lets you see changes in your app without rebuilding. To set it up, see [Set Up Fast Refresh to Build Apps Using Vega CLI](https://developer.amazon.com/docs/vega/latest/fast-refresh.html).
-
-
-Set up your environment from scratch
-------------------------------------
-
-> **Note:** This project is already set up as a complete monorepo. The step-by-step setup instructions below are for reference only.
-
-### Step 1: Create individual projects and a monorepo
-
-The following steps show you how to create separate projects for each platform, and then link them together in a monorepo structure.
-
-#### Mobile project (`./mobile`)
-
-1. To create a React Native mobile project, run the following command. 
-
-   ```
-   npx @react-native-community/cli@latest init MonorepoSample --directory mobile
-   ```
-
-2. Update your **mobile/package.json** file. 
-
-   ```json
-   {
-     "name": "@rnmonorepo/mobile",
-     "scripts": {
-       "clean": "rm -rf android/.gradle android/build android/app/.cxx android/app/build ios/build ios/Pods node_modules",
-       "pods": "cd ios && pod install && cd ..",
-       // ... existing scripts
-     }
-   }
-   ```
-
-#### TvOS project (`./tvos`)
-
-
-1. To create a React Native TvOS project, run the following command.
-
-   ```
-   npx @react-native-community/cli@latest init MonorepoSample --directory tvos --template @react-native-tvos/template-tv
-   ```
-
-2. Update your **tvos/package.json** file. 
-
-   ```json
-   {
-     "name": "@rnmonorepo/tvos",
-     "scripts": {
-       "clean": "rm -rf android/.gradle android/build android/app/.cxx android/app/build ios/build ios/Pods node_modules",
-       "pods": "cd ios && pod install && cd ..",
-       // ... existing scripts
-     }
-   }
-   ```
-
-#### React Native for Vega project (`./vega`)
-
-1. To create your React Native for Vega project using the Vega CLI, run the following command. 
-
-   ```
-   vega project generate --template hello-world --name MonorepoSample --packageId com.amazondeveloper.monoreposample --outputDir vega
-   ```
-
-2. Update your **vega/package.json** file. 
-
-   ```json
-   {
-     "name": "@rnmonorepo/vega"
-     // ... existing configuration
-   }
-   ```
-
-### Step 2: Configure Yarn workspace
-
-1. Create the following **package.json** file at your project root.
-
-   ```json
-   {
-     "name": "rnmonorepo",
-     "packageManager": "yarn@4.5.0",
-     "version": "1.0.0",
-     "description": "Sample project for React Native monorepo using Yarn workspaces.",
-     "license": "ISC",
-     "workspaces": [
-       "shared",
-       "mobile",
-       "tvos",
-       "vega"
-     ]
-   }
-   ```
-
-2. Create the following **.yarnrc.yml** file at the project root.
-
-   ```yaml
-   nodeLinker: node-modules
-   nmHoistingLimits: workspaces
-   ```
-
-> **Why this configuration?**
-> 
-> `nmHoistingLimits: workspaces` prevents dependencies from being hoisted to the root, which is crucial for React Native projects that rely on hardcoded paths relative to their project root.
-
-### Step 3: Set up Android Virtual Devices
-
-1. Open **Android Studio**.
-2. Go to **AVD Manager** (Virtual Device Manager).
-3. Create two virtual devices:
-   * **`android-mobile`** - for mobile development.
-   * **`android-tv`** - for TV development.
-
-
-Create and configure shared code package
-----------------------------------------
-
-1. To create the React Native shared library, run the following command.
-
-   ```
-   npx create-react-native-library@latest shared --local
-   ```
-
-2. To configure your shared package, update your **shared/package.json** using the following example.
-
-   ```json
-   {
-     "peerDependencies": {
-       "react": "*",
-       "react-native": "*"
-     }
-   }
-   ```
-
-3. To share components for mobile and TV apps, update your package.json file using the following example.
-
-   ```json
-   {
-     "dependencies": {
-       "@rnmonorepo/shared": "*",
-       // ... other dependencies
-     }
-   }
-   ```
-
-4. Configure Metro for Vega, Mobile, and TvOS projects. 
-
-   **Vega Project**
-
-   Enhanced Metro configuration for TV development:
-
-   ```javascript
-   const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
-   const path = require('path');
-
-   const config = {
-       watchFolders: [
-           path.resolve(__dirname, '../shared'),
-       ],
-       resolver: {
-           unstable_enableSymlinks: true,
-           nodeModulesPaths: [
-               path.resolve(__dirname, 'node_modules'),
-               path.resolve(__dirname, '../node_modules'),
-           ],
-           extraNodeModules: {
-               'react': path.resolve(__dirname, 'node_modules/react'),
-               'react-native': path.resolve(__dirname, 'node_modules/react-native'),
-               '@babel/runtime': path.resolve(__dirname, 'node_modules/@babel/runtime'),
-           },
-           resolverMainFields: ['react-native', 'browser', 'main'],
-           platforms: ['native', 'ios', 'android', 'tv'],
-       },
-   };
-
-   module.exports = mergeConfig(getDefaultConfig(__dirname), config);
-   ```
-
-   **Mobile and TvOS projects**
-
-   Update your **metro.config.js** file using the following example. 
-
-   ```javascript
-   const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
-   const path = require('path');
-
-   const config = {
-       watchFolders: [
-           path.resolve(__dirname, '../shared'),
-       ],
-       resolver: {
-           unstable_enableSymlinks: true,
-           extraNodeModules: {
-               'react': path.resolve(__dirname, 'node_modules/react'),
-               'react-native': path.resolve(__dirname, 'node_modules/react-native'),
-               '@babel/runtime': path.resolve(__dirname, 'node_modules/@babel/runtime'),
-           },
-       },
-   };
-
-   module.exports = mergeConfig(getDefaultConfig(__dirname), config);
-   ```
-
-### Use Shared Components
-
-The following example shows you how to update your **App.tsx** file to use shared components. 
-
-```typescript
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {base} from '@rnmonorepo/shared';
-
-const App = () => {
-  return (
-    <View style={localStyles.body}>
-      <Text style={base.h1}>Hello World! TvOS!</Text>
-    </View>
-  );
-};
-
-const localStyles = StyleSheet.create({
-  body: {
-    ...base.body,
-    alignItems: 'center',
-  },
-});
-
-export default App;
+```bash
+vega run-app packages/vega/build/armv7-release/vega_armv7.vpkg
 ```
 
-Troubleshooting
----------------
+[Fast Refresh](https://reactnative.dev/docs/fast-refresh) is available in debug builds. See [Set Up Fast Refresh](https://developer.amazon.com/docs/vega/latest/fast-refresh.html) for configuration.
 
-### Android NDK error
+### Expo TV
 
-**Error**: `[CXX1101] NDK at $HOME/Library/Android/sdk/ndk/26.1.10909125 did not have a source.properties file`.
+> **Note:** Apple TV (iOS) must run on port 8081. Avoid running Vega and Expo TV builds at the same time, as they use separate Metro instances that can conflict.
 
-**Solution**: Remove empty NDK installation directories from previous installations.
+Prebuild the native projects first:
 
-### TvOS Android device issue
-
-**Problem**: `npx react-native run-android` doesn't work with `--device` attribute for TvOS.
-
-**Solution**: Start the emulator explicitly using Android CLI. Run the following command. 
-
-```
-emulator -avd <virtual-device-name>
+```bash
+yarn expotv:prebuild
 ```
 
+Then run on your target platform:
 
-### Metro dependency resolution
+```bash
+# Android TV
+yarn expotv:android
 
-**Problem**: Metro bundler fails to resolve dependencies in monorepo.
+# Apple TV
+yarn expotv:ios
 
-**Solution**: Verify `watchFolders` and `nodeModulesPaths` are correctly configured in your Metro config.
-
-### Vega build issues
-
-**Problem**: Vega builds failing.
-
-**Solution**: Ensure Vega CLI tools are installed and properly configured.
-
-[Vega CLI Installation](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html)
-
-### Fast Refresh troubleshooting
-
-**App Changes Not Reflecting**
-
-**Solution**: Verify you're using debug builds.
-
-*  `*_armv7-debug.vpkg` for Fire TV
-* `*_x86_64-debug.vpkg` for Intel Mac
-* `*_aarch64-debug.vpkg` for M1/M2 Mac
-
-**Metro displays "Pending... Device Connection"**
-
-**Solution**: Check that port forwarding is active and using port 8081.
-
-**App Crashes**
-
-**Solution**: Verify device architecture matches the .VPKG file. Run the following command. 
-
-```
-vega device info
+# Web
+yarn expotv:web
 ```
 
-Related topics
---------------
+## Tech Stack
 
-* [React Native Documentation](https://reactnative.dev/)
-* [React Native TvOS](https://github.com/react-native-tvos/react-native-tvos)
-* [Vega TV Developer Portal](https://developer.amazon.com/docs/vega/vega.html)
-* [Yarn Workspaces](https://yarnpkg.com/features/workspaces)
+| | Expo TV | Vega (Fire TV) |
+|---|---------|----------------|
+| Framework | Expo SDK 54 | Kepler (@amazon-devices/react-native-kepler ^2.0.0) |
+| React | 19.1.0 | 18.2.0 |
+| React Native | react-native-tvos 0.81-stable | 0.72.0 |
+| TypeScript | ~5.9.2 | 4.8.4 |
 
+The shared package (`@multitv/shared`) provides:
+- UI components: Header, HeaderLogo (with platform-specific variants), Tile, ApiDemo, IconReactNativeAnimated
+- HomeScreen with tile-based navigation and focus management
+- Scaling utilities for TV display dimensions (1920x1080 base). The scaling approach used here is simple and works for a demo, but for production apps you may want a more robust solution like responsive layouts or a design system.
+- A fetch-based HTTP client
 
-Release notes
--------------
+### Platform-Specific File Extensions
 
-### v0.21
+The shared package uses React Native's platform resolution to load the right assets per platform:
 
-* Initial release.
+- `.kepler.tsx` for Vega/Fire TV
+- `.android.tsx` for Android TV
+- `.ios.tsx` for Apple TV
+- `.web.tsx` for web
+
+## Notes
+
+The Expo TV app (`packages/expotv/`) was scaffolded from the default Expo TV template. Some boilerplate files from the template (e.g. `HelloWave`, `ParallaxScrollView`, `ExternalLink`) are still present and not used by the shared components. They're harmless but can be removed if you want a cleaner setup.
+
+## Troubleshooting
+
+### Metro Dependency Resolution
+
+If Metro fails to resolve dependencies, check that `watchFolders` and `nodeModulesPaths` are correctly configured in the Metro config. The monorepo uses `react-native-monorepo-tools` to handle this.
+
+### Vega Build Issues
+
+Make sure the Vega CLI tools are installed and configured correctly.
+See [Vega CLI Installation](https://developer.amazon.com/docs/vega/latest/install-vega-sdk.html).
+
+### Fast Refresh Not Working
+
+Fast Refresh only works with debug builds:
+- `vega_aarch64.vpkg` from `aarch64-debug/` for M-series Mac
+- `vega_x86_64.vpkg` from `x86_64-debug/` for Intel Mac
+- `vega_armv7.vpkg` from `armv7-debug/` for Fire TV Stick
+
+### Android NDK Error
+
+If you see `[CXX1101] NDK did not have a source.properties file`, remove any empty NDK installation directories from your Android SDK.
+
+## Related Resources
+
+- [React Native Documentation](https://reactnative.dev/)
+- [React Native TvOS](https://github.com/react-native-tvos/react-native-tvos)
+- [Vega Developer Portal](https://developer.amazon.com/docs/vega/vega.html)
+- [Expo Documentation](https://docs.expo.dev/)
+- [Yarn Workspaces](https://yarnpkg.com/features/workspaces)
 
 ## License
 
