@@ -1,17 +1,16 @@
 import {Href, useRouter} from 'expo-router';
-import {HomeScreen} from '@multitv/shared';
+import {SearchScreen} from '@multitv/shared';
 
-export default function App() {
+export default function SearchRoute() {
   const router = useRouter();
   return (
-    <HomeScreen
+    <SearchScreen
       onPodcastPress={id =>
         router.push({
           pathname: '/podcast/[id]',
           params: {id: String(id)},
         } as unknown as Href)
       }
-      onSearchPress={() => router.push('/search' as Href)}
     />
   );
 }

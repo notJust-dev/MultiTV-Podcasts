@@ -10,6 +10,7 @@ import {
   HomeScreen,
   PodcastDetailsScreen,
   PodcastIndexProvider,
+  SearchScreen,
 } from '@multitv/shared';
 import {PlayerScreenContainer} from './screens/PlayerScreenContainer';
 import {digestSHA1} from './crypto/digestSHA1';
@@ -19,6 +20,7 @@ enableFreeze();
 
 type RootStackParamList = {
   Home: undefined;
+  Search: undefined;
   PodcastDetails: {id: string | number};
   Player: {episodeId: string | number};
 };
@@ -40,6 +42,16 @@ export const App = () => {
             <Stack.Screen name="Home">
               {({navigation}) => (
                 <HomeScreen
+                  onPodcastPress={id =>
+                    navigation.navigate('PodcastDetails', {id})
+                  }
+                  onSearchPress={() => navigation.navigate('Search')}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="Search">
+              {({navigation}) => (
+                <SearchScreen
                   onPodcastPress={id =>
                     navigation.navigate('PodcastDetails', {id})
                   }
