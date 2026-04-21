@@ -82,7 +82,11 @@ export class PodcastIndexClient {
   ): Promise<T> {
     const headers = await this.buildAuthHeaders();
     const res = await this.http.get<T>(path, query, headers);
+    console.log(path);
+    console.log(query);
+    console.log(headers);
     if (!res.ok) {
+      console.log(res);
       throw new Error(
         `PodcastIndex request failed (${res.status}) for ${path}`,
       );

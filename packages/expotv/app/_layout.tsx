@@ -43,9 +43,21 @@ export default function RootLayout() {
   return (
     <PodcastIndexProvider digestSHA1={digestSHA1}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
+        <Stack
+          screenOptions={{
+            headerStyle: { backgroundColor: 'black' },
+            headerTintColor: '#FFFFFF',
+            headerTitleStyle: { fontWeight: '600' },
+            headerBackTitle: 'Back',
+          }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
+          <Stack.Screen name="search" options={{ title: 'Search' }} />
+          <Stack.Screen name="podcast/[id]" options={{ title: 'Podcast' }} />
+          <Stack.Screen
+            name="player/[episodeId]"
+            options={{ title: 'Now Playing' }}
+          />
+          <Stack.Screen name="+not-found" options={{ title: 'Not found' }} />
         </Stack>
       </ThemeProvider>
     </PodcastIndexProvider>

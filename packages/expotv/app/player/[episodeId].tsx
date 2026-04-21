@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Audio, AVPlaybackStatus} from 'expo-av';
-import {useLocalSearchParams} from 'expo-router';
+import {Stack, useLocalSearchParams} from 'expo-router';
 
 import {
   PlayerScreen,
@@ -98,12 +98,15 @@ export default function PlayerRoute() {
   };
 
   return (
-    <PlayerScreen
-      episode={episode}
-      podcast={feed}
-      loading={loadingEpisode}
-      error={episodeError}
-      player={player}
-    />
+    <>
+      <Stack.Screen options={{title: episode?.title ?? 'Now Playing'}} />
+      <PlayerScreen
+        episode={episode}
+        podcast={feed}
+        loading={loadingEpisode}
+        error={episodeError}
+        player={player}
+      />
+    </>
   );
 }
