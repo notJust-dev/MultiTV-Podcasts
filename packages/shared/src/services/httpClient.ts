@@ -35,27 +35,37 @@ export class HttpClient {
   private async request<T>(
     method: string,
     path: string,
-    options?: {body?: unknown; query?: Record<string, unknown>},
+    options?: {
+      body?: unknown;
+      query?: Record<string, unknown>;
+      headers?: Record<string, string>;
+    },
   ): Promise<HttpResponse<T>> {
     let url = this.buildUrl(path);
     if (options?.query) {
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(options.query)) {
+        if (value === undefined || value === null) continue;
         params.append(key, String(value));
       }
-      url += `?${params.toString()}`;
+      const qs = params.toString();
+      if (qs) url += `?${qs}`;
     }
+
+    const headers: Record<string, string> = {
+      ...this.defaultHeaders,
+      ...(options?.headers ?? {}),
+    };
 
     const fetchOptions: RequestInit = {method};
 
-    if (options?.body) {
-      fetchOptions.headers = {
-        'Content-Type': 'application/json',
-        ...this.defaultHeaders,
-      };
+    if (options?.body !== undefined) {
+      headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
       fetchOptions.body = JSON.stringify(options.body);
-    } else if (Object.keys(this.defaultHeaders).length > 0) {
-      fetchOptions.headers = this.defaultHeaders;
+    }
+
+    if (Object.keys(headers).length > 0) {
+      fetchOptions.headers = headers;
     }
 
     const response = await fetch(url, fetchOptions);
@@ -72,33 +82,40 @@ export class HttpClient {
   async get<T = unknown>(
     path: string,
     query?: Record<string, unknown>,
+    headers?: Record<string, string>,
   ): Promise<HttpResponse<T>> {
-    return this.request<T>('GET', path, {query});
+    return this.request<T>('GET', path, {query, headers});
   }
 
   async post<T = unknown>(
     path: string,
     body?: unknown,
+    headers?: Record<string, string>,
   ): Promise<HttpResponse<T>> {
-    return this.request<T>('POST', path, {body});
+    return this.request<T>('POST', path, {body, headers});
   }
 
   async put<T = unknown>(
     path: string,
     body?: unknown,
+    headers?: Record<string, string>,
   ): Promise<HttpResponse<T>> {
-    return this.request<T>('PUT', path, {body});
+    return this.request<T>('PUT', path, {body, headers});
   }
 
   async patch<T = unknown>(
     path: string,
     body?: unknown,
+    headers?: Record<string, string>,
   ): Promise<HttpResponse<T>> {
-    return this.request<T>('PATCH', path, {body});
+    return this.request<T>('PATCH', path, {body, headers});
   }
 
-  async delete<T = unknown>(path: string): Promise<HttpResponse<T>> {
-    return this.request<T>('DELETE', path);
+  async delete<T = unknown>(
+    path: string,
+    headers?: Record<string, string>,
+  ): Promise<HttpResponse<T>> {
+    return this.request<T>('DELETE', path, {headers});
   }
 }
 

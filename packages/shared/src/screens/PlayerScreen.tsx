@@ -1,10 +1,15 @@
 import {ReactNode} from 'react';
-import {View, Text, Image, Pressable, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 
 import {scaleFontSize, scaleHeight, scaleWidth} from '../utils/scaling';
-import episodesData from '../data/episodes.json';
-import podcasts from '../data/trending.json';
-import type {Episode} from '../types';
+import type {Episode, Feed} from '../types';
 
 export interface PlayerState {
   isPlaying: boolean;
@@ -16,7 +21,10 @@ export interface PlayerState {
 }
 
 interface PlayerScreenProps {
-  episodeId: string | number;
+  episode: Episode | null;
+  podcast?: Feed | null;
+  loading?: boolean;
+  error?: Error | null;
   player: PlayerState;
   children?: ReactNode;
 }
@@ -31,16 +39,33 @@ function formatTime(seconds: number): string {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-export function PlayerScreen({episodeId, player, children}: PlayerScreenProps) {
-  const episode = (episodesData.items as Episode[]).find(
-    e => String(e.id) === String(episodeId),
-  );
-  const podcast = episode
-    ? podcasts.feeds.find((f: any) => f.id === episode.feedId)
-    : undefined;
+export function PlayerScreen({
+  episode,
+  podcast,
+  loading,
+  error,
+  player,
+  children,
+}: PlayerScreenProps) {
+  if (loading && !episode) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator color="#FFFFFF" size="large" />
+      </View>
+    );
+  }
+
+  if (error || !episode) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.title}>Episode not available</Text>
+        {error ? <Text style={styles.podcast}>{error.message}</Text> : null}
+      </View>
+    );
+  }
 
   const artworkUri =
-    episode?.image || episode?.feedImage || podcast?.artwork || podcast?.image;
+    episode.image || episode.feedImage || podcast?.artwork || podcast?.image;
 
   const progress = player.duration > 0 ? player.position / player.duration : 0;
 
@@ -57,7 +82,7 @@ export function PlayerScreen({episodeId, player, children}: PlayerScreenProps) {
 
       <View style={styles.meta}>
         <Text style={styles.title} numberOfLines={2}>
-          {episode?.title ?? 'Unknown episode'}
+          {episode.title}
         </Text>
         {podcast ? (
           <Text style={styles.podcast} numberOfLines={1}>
@@ -123,6 +148,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: scaleHeight(40),
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   artworkWrap: {
     alignItems: 'center',

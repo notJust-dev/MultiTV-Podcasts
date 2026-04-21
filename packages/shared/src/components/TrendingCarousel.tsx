@@ -1,28 +1,35 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native'
-import { scaleFontSize, scaleWidth } from '../utils/scaling'
-import { PodcastCard } from './PodcastCard'
-import podcasts from '../data/trending.json'
+import {View, Text, StyleSheet, ScrollView, ActivityIndicator} from 'react-native'
+import {scaleFontSize, scaleWidth} from '../utils/scaling'
+import {PodcastCard} from './PodcastCard'
+import {useTrending} from '../context/PodcastIndexContext'
 
 interface TrendingCarouselProps {
     onPodcastPress?: (id: string | number) => void;
 }
 
 export default function TrendingCarousel({onPodcastPress}: TrendingCarouselProps) {
+    const {data: podcasts, loading, error} = useTrending(20);
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Trending Podcasts</Text>
 
-            <ScrollView horizontal>
-                {podcasts.feeds.map((podcast: any) => (
-                    <View key={podcast.id} style={styles.listItem}>
-                        <PodcastCard
-                            key={podcast.id}
-                            podcast={podcast}
-                            onPress={p => onPodcastPress?.(p.id)}
-                        />
-                    </View>
-                ))}
-            </ScrollView>
+            {loading ? (
+                <ActivityIndicator color="#FFFFFF" size="large" />
+            ) : error ? (
+                <Text style={styles.error}>Failed to load: {error.message}</Text>
+            ) : (
+                <ScrollView horizontal>
+                    {(podcasts ?? []).map(podcast => (
+                        <View key={podcast.id} style={styles.listItem}>
+                            <PodcastCard
+                                podcast={podcast}
+                                onPress={p => onPodcastPress?.(p.id)}
+                            />
+                        </View>
+                    ))}
+                </ScrollView>
+            )}
         </View>
     )
 }
@@ -41,5 +48,9 @@ const styles = StyleSheet.create({
     },
     listItem: {
         width: scaleWidth(400)
-    }
+    },
+    error: {
+        color: '#ff8080',
+        fontSize: scaleFontSize(22),
+    },
 })

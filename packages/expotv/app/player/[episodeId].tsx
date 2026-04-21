@@ -2,8 +2,12 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {Audio, AVPlaybackStatus} from 'expo-av';
 import {useLocalSearchParams} from 'expo-router';
 
-import {PlayerScreen, PlayerState} from '@multitv/shared';
-import episodes from '../../../shared/src/data/episodes.json';
+import {
+  PlayerScreen,
+  PlayerState,
+  useEpisodeById,
+  useFeedById,
+} from '@multitv/shared';
 
 export default function PlayerRoute() {
   const {episodeId} = useLocalSearchParams<{episodeId: string}>();
@@ -13,11 +17,12 @@ export default function PlayerRoute() {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const {data: episode, loading: loadingEpisode, error: episodeError} =
+    useEpisodeById(episodeId);
+  const {data: feed} = useFeedById(episode?.feedId);
+  const url = episode?.enclosureUrl;
+
   useEffect(() => {
-    const ep = (episodes.items as any[]).find(
-      e => String(e.id) === String(episodeId),
-    );
-    const url = ep?.enclosureUrl as string | undefined;
     if (!url) return;
 
     let cancelled = false;
@@ -54,7 +59,7 @@ export default function PlayerRoute() {
         sound.unloadAsync().catch(() => {});
       }
     };
-  }, [episodeId]);
+  }, [url]);
 
   const togglePlayPause = useCallback(async () => {
     const sound = soundRef.current;
@@ -92,5 +97,13 @@ export default function PlayerRoute() {
     seekBy,
   };
 
-  return <PlayerScreen episodeId={episodeId} player={player} />;
+  return (
+    <PlayerScreen
+      episode={episode}
+      podcast={feed}
+      loading={loadingEpisode}
+      error={episodeError}
+      player={player}
+    />
+  );
 }

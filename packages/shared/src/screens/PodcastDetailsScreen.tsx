@@ -1,10 +1,18 @@
-import {View, Text, Image, StyleSheet, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 
 import {scaleFontSize, scaleHeight, scaleWidth} from '../utils/scaling';
-import podcasts from '../data/trending.json';
-import episodesData from '../data/episodes.json';
 import {EpisodeItem} from '../components/EpisodeItem';
-import type {Episode} from '../types';
+import {
+  useEpisodesByFeedId,
+  useFeedById,
+} from '../context/PodcastIndexContext';
 
 interface PodcastDetailsScreenProps {
   podcastId: string | number;
@@ -24,16 +32,27 @@ export function PodcastDetailsScreen({
   podcastId,
   onEpisodePress,
 }: PodcastDetailsScreenProps) {
-  const podcast = podcasts.feeds.find(
-    (feed: any) => String(feed.id) === String(podcastId),
-  );
-  const episodes = (episodesData.items as Episode[]) ?? [];
+  const {data: podcast, loading: loadingFeed, error: feedError} =
+    useFeedById(podcastId);
+  const {data: episodes, loading: loadingEpisodes, error: episodesError} =
+    useEpisodesByFeedId(podcastId, 50);
 
-  if (!podcast) {
+  if (loadingFeed && !podcast) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator color="#FFFFFF" size="large" />
+      </View>
+    );
+  }
+
+  if (feedError || !podcast) {
+    return (
+      <View style={[styles.container, styles.centered]}>
         <Text style={styles.title}>Podcast not found</Text>
         <Text style={styles.meta}>id: {String(podcastId)}</Text>
+        {feedError ? (
+          <Text style={styles.meta}>{feedError.message}</Text>
+        ) : null}
       </View>
     );
   }
@@ -42,7 +61,7 @@ export function PodcastDetailsScreen({
     <FlatList
       style={styles.container}
       contentContainerStyle={styles.content}
-      data={episodes}
+      data={episodes ?? []}
       keyExtractor={item => String(item.id)}
       ListHeaderComponent={
         <View style={styles.headerBlock}>
@@ -68,6 +87,13 @@ export function PodcastDetailsScreen({
           </Text>
 
           <Text style={styles.sectionTitle}>Episodes</Text>
+          {loadingEpisodes ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : episodesError ? (
+            <Text style={styles.error}>
+              Failed to load episodes: {episodesError.message}
+            </Text>
+          ) : null}
         </View>
       }
       renderItem={({item}) => (
@@ -86,6 +112,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: scaleWidth(160),
     backgroundColor: 'black',
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: scaleHeight(12),
   },
   content: {
     paddingBottom: scaleHeight(80),
@@ -133,5 +164,9 @@ const styles = StyleSheet.create({
     color: 'lightgray',
     fontSize: scaleFontSize(24),
     lineHeight: scaleFontSize(34),
+  },
+  error: {
+    color: '#ff8080',
+    fontSize: scaleFontSize(22),
   },
 });
