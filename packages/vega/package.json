@@ -12,7 +12,7 @@
     "test:snapshot": "jest --colors --updateSnapshot",
     "lint": "eslint src test",
     "lint:fix": "eslint src test --fix",
-    "build:release": "react-native build-kepler --build-type Release",
+    "build:release": "react-native build-kepler --build-type Release --build-number 1",
     "build:debug": "react-native build-kepler --build-type Debug",
     "build:app": "npm-run-all build:release",
     "build": "npm-run-all build:release",

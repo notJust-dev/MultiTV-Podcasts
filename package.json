@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "yarn workspaces foreach --all run clean ; rm -rf node_modules",
     "vega:build": "yarn workspace @multitv/vega run build:debug",
+    "vega:release": "yarn workspace @multitv/vega run build:release",
     "expotv": "yarn workspace @multitv/expotv",
     "expotv:prebuild": "yarn workspace @multitv/expotv run prebuild",
     "expotv:prebuild:tv": "yarn workspace @multitv/expotv run prebuild:tv",
