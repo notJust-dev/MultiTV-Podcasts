@@ -1,25 +1,32 @@
-/*
- * Copyright (c) 2022 Amazon.com, Inc. or its affiliates.  All rights reserved.
- *
- * PROPRIETARY/CONFIDENTIAL.  USE IS SUBJECT TO LICENSE TERMS.
- */
-
 import React from 'react';
-import {StyleSheet, ImageBackground} from 'react-native';
+import {ImageBackground} from 'react-native';
+import {
+  enableFreeze,
+  enableScreens,
+} from '@amazon-devices/react-native-screens';
+import {createNativeStackNavigator} from '@amazon-devices/react-navigation__native-stack';
+import {NavigationContainer} from '@amazon-devices/react-navigation__native';
 import {HomeScreen} from '@multitv/shared';
+
+enableScreens();
+enableFreeze();
+
+const Stack = createNativeStackNavigator();
 
 export const App = () => {
   return (
-    <ImageBackground
-      source={require('./assets/background.png')}
-      style={styles.background}>
-      <HomeScreen />
-    </ImageBackground>
+    <NavigationContainer>
+      <ImageBackground
+        source={require('./assets/background.png')}
+        style={{flex: 1}}>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      </ImageBackground>
+    </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-});
