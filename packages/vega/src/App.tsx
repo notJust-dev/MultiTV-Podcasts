@@ -6,12 +6,17 @@ import {
 } from '@amazon-devices/react-native-screens';
 import {createNativeStackNavigator} from '@amazon-devices/react-navigation__native-stack';
 import {NavigationContainer} from '@amazon-devices/react-navigation__native';
-import {HomeScreen} from '@multitv/shared';
+import {HomeScreen, PodcastDetailsScreen} from '@multitv/shared';
 
 enableScreens();
 enableFreeze();
 
-const Stack = createNativeStackNavigator();
+type RootStackParamList = {
+  Home: undefined;
+  PodcastDetails: {id: string | number};
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const App = () => {
   return (
@@ -24,7 +29,20 @@ export const App = () => {
           screenOptions={{
             headerShown: false,
           }}>
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Home">
+            {({navigation}) => (
+              <HomeScreen
+                onPodcastPress={id =>
+                  navigation.navigate('PodcastDetails', {id})
+                }
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="PodcastDetails">
+            {({route}) => (
+              <PodcastDetailsScreen podcastId={route.params.id} />
+            )}
+          </Stack.Screen>
         </Stack.Navigator>
       </ImageBackground>
     </NavigationContainer>

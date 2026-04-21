@@ -3,7 +3,11 @@ import { scaleFontSize, scaleWidth } from '../utils/scaling'
 import { PodcastCard } from './PodcastCard'
 import podcasts from '../data/trending.json'
 
-export default function TrendingCarousel() {
+interface TrendingCarouselProps {
+    onPodcastPress?: (id: string | number) => void;
+}
+
+export default function TrendingCarousel({onPodcastPress}: TrendingCarouselProps) {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Trending Podcasts</Text>
@@ -11,7 +15,11 @@ export default function TrendingCarousel() {
             <ScrollView horizontal>
                 {podcasts.feeds.map((podcast: any) => (
                     <View key={podcast.id} style={styles.listItem}>
-                        <PodcastCard key={podcast.id} podcast={podcast} />
+                        <PodcastCard
+                            key={podcast.id}
+                            podcast={podcast}
+                            onPress={p => onPodcastPress?.(p.id)}
+                        />
                     </View>
                 ))}
             </ScrollView>

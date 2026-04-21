@@ -5,12 +5,16 @@ import podcast from '../data/trending.json';
 import {PodcastCard} from '../components/PodcastCard';
 import TrendingCarousel from '../components/TrendingCarousel';
 
-export const HomeScreen = () => {
+interface HomeScreenProps {
+  onPodcastPress?: (id: string | number) => void;
+}
+
+export const HomeScreen = ({onPodcastPress}: HomeScreenProps = {}) => {
   return (
     <ImageBackground
       source={require('../assets/background.png')}
       style={styles.background}>
-      <TrendingCarousel />
+      <TrendingCarousel onPodcastPress={onPodcastPress} />
     </ImageBackground>
   );
 };

@@ -4,15 +4,16 @@ import {useState} from 'react';
 
 interface PodcastCardProps {
   podcast: {
-    id: string;
+    id: string | number;
     title: string;
     author: string;
     artwork?: string;
     image?: string;
   };
+  onPress?: (podcast: PodcastCardProps['podcast']) => void;
 }
 
-export function PodcastCard({podcast}: PodcastCardProps) {
+export function PodcastCard({podcast, onPress}: PodcastCardProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -20,9 +21,7 @@ export function PodcastCard({podcast}: PodcastCardProps) {
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       style={[styles.container, isFocused && styles.focusedContainer]}
-      onPress={() => {
-        console.log('podcast pressed: ', podcast.title);
-      }}>
+      onPress={() => onPress?.(podcast)}>
       <Image
         style={styles.image}
         source={{uri: podcast.artwork || podcast.image}}
