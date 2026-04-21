@@ -8,6 +8,7 @@ import type {Episode} from '../types';
 
 interface PodcastDetailsScreenProps {
   podcastId: string | number;
+  onEpisodePress?: (id: string | number) => void;
 }
 
 function stripHtml(input: string): string {
@@ -19,7 +20,10 @@ function stripHtml(input: string): string {
     .trim();
 }
 
-export function PodcastDetailsScreen({podcastId}: PodcastDetailsScreenProps) {
+export function PodcastDetailsScreen({
+  podcastId,
+  onEpisodePress,
+}: PodcastDetailsScreenProps) {
   const podcast = podcasts.feeds.find(
     (feed: any) => String(feed.id) === String(podcastId),
   );
@@ -66,7 +70,12 @@ export function PodcastDetailsScreen({podcastId}: PodcastDetailsScreenProps) {
           <Text style={styles.sectionTitle}>Episodes</Text>
         </View>
       }
-      renderItem={({item}) => <EpisodeItem episode={item} />}
+      renderItem={({item}) => (
+        <EpisodeItem
+          episode={item}
+          onPress={e => onEpisodePress?.(e.id)}
+        />
+      )}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
     />
   );

@@ -1,6 +1,8 @@
 export {Header} from './src/components/Header/Header';
 export {HomeScreen} from './src/screens/HomeScreen';
 export {PodcastDetailsScreen} from './src/screens/PodcastDetailsScreen';
+export {PlayerScreen} from './src/screens/PlayerScreen';
+export type {PlayerState} from './src/screens/PlayerScreen';
 export {ApiDemo} from './src/components/ApiDemo';
 
 export {

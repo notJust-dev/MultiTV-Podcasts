@@ -7,6 +7,7 @@ import {
 import {createNativeStackNavigator} from '@amazon-devices/react-navigation__native-stack';
 import {NavigationContainer} from '@amazon-devices/react-navigation__native';
 import {HomeScreen, PodcastDetailsScreen} from '@multitv/shared';
+import {PlayerScreenContainer} from './screens/PlayerScreenContainer';
 
 enableScreens();
 enableFreeze();
@@ -14,6 +15,7 @@ enableFreeze();
 type RootStackParamList = {
   Home: undefined;
   PodcastDetails: {id: string | number};
+  Player: {episodeId: string | number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,8 +41,18 @@ export const App = () => {
             )}
           </Stack.Screen>
           <Stack.Screen name="PodcastDetails">
+            {({route, navigation}) => (
+              <PodcastDetailsScreen
+                podcastId={route.params.id}
+                onEpisodePress={episodeId =>
+                  navigation.navigate('Player', {episodeId})
+                }
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Player">
             {({route}) => (
-              <PodcastDetailsScreen podcastId={route.params.id} />
+              <PlayerScreenContainer episodeId={route.params.episodeId} />
             )}
           </Stack.Screen>
         </Stack.Navigator>

@@ -1,7 +1,18 @@
-import {useLocalSearchParams} from 'expo-router';
+import {Href, useLocalSearchParams, useRouter} from 'expo-router';
 import {PodcastDetailsScreen} from '@multitv/shared';
 
 export default function PodcastDetailsRoute() {
   const {id} = useLocalSearchParams<{id: string}>();
-  return <PodcastDetailsScreen podcastId={id} />;
+  const router = useRouter();
+  return (
+    <PodcastDetailsScreen
+      podcastId={id}
+      onEpisodePress={episodeId =>
+        router.push({
+          pathname: '/player/[episodeId]',
+          params: {episodeId: String(episodeId)},
+        } as unknown as Href)
+      }
+    />
+  );
 }
