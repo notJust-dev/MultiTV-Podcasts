@@ -1,8 +1,11 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {AudioPlayer} from '@amazon-devices/react-native-w3cmedia/dist/interface/AudioPlayer';
-import {PlayerScreen, PlayerState} from '@multitv/shared';
-
-import episodes from '../../../shared/src/data/episodes.json';
+import {
+  PlayerScreen,
+  PlayerState,
+  useEpisodeById,
+  useFeedById,
+} from '@multitv/shared';
 
 const noop = () => undefined;
 
@@ -17,12 +20,10 @@ export function PlayerScreenContainer({episodeId}: PlayerScreenContainerProps) {
   const [position, setPosition] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const src = useMemo(() => {
-    const ep = (episodes.items as any[]).find(
-      e => String(e.id) === String(episodeId),
-    );
-    return ep?.enclosureUrl as string | undefined;
-  }, [episodeId]);
+  const {data: episode, loading: loadingEpisode, error: episodeError} =
+    useEpisodeById(episodeId);
+  const {data: feed} = useFeedById(episode?.feedId);
+  const src = episode?.enclosureUrl;
 
   useEffect(() => {
     if (!src) return;
@@ -139,5 +140,13 @@ export function PlayerScreenContainer({episodeId}: PlayerScreenContainerProps) {
     seekBy,
   };
 
-  return <PlayerScreen episodeId={episodeId} player={player} />;
+  return (
+    <PlayerScreen
+      episode={episode}
+      podcast={feed}
+      loading={loadingEpisode}
+      error={episodeError}
+      player={player}
+    />
+  );
 }
